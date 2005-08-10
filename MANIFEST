@@ -1,0 +1,9 @@
+MANIFEST
+Makefile.PL
+lib/NetPass/Snort.pm
+bin/npsnortd.pl
+LICENSE
+etc/init.d/npsnortd
+etc/sysconfig/npsnortd
+etc/sysconfig/snort
+etc/snort.conf

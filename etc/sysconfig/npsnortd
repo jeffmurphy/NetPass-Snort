@@ -1,0 +1,10 @@
+NPAPISERVER=128.205.10.37
+NPAPISECRET=yoyo
+SNORTLOGFILE=/opt/snort/logs/snort.log
+SNORTRULESFILE=/opt/snort/etc/snort.rules
+SNORTPCAPRULES=/opt/snort/etc/pcaprules.txt
+NPSNORTDPORT=20008
+SNORTPIDFILE=/var/run/snort_dag0.pid
+SNORTSTARTUPSCRIPT=/etc/init.d/snortd
+SNORTIGNOREQUAR=1
+NPSNORTDREFRESH=300

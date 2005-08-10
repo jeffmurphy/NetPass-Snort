@@ -1,0 +1,77 @@
+#!/bin/sh
+#
+# npsnortd         Start/Stop npsnortd.
+#
+# chkconfig: 2345 40 60
+#
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+# Source the local configuration file
+. /etc/sysconfig/npsnortd
+
+if [ "$SNORTLOGFILE"X = "X" ]; then
+   SNORTLOGFILE=""
+else
+   SNORTLOGFILE="-l $SNORTLOGFILE"
+fi
+
+if [ "$SNORTRULESFILE"X = "X" ]; then
+   SNORTRULESFILE=""
+else
+   SNORTRULESFILE="-r $SNORTRULESFILE"
+fi
+
+if [ "$NPSNORTDPORT"X = "X" ]; then
+   NPSNORTDPORT=""
+else
+   NPSNORTDPORT="-P $NPSNORTDPORT"
+fi
+
+if [ "$SNORTPIDFILE"X = "X" ]; then
+   SNORTPIDFILE=""
+else
+   SNORTPIDFILE="-p $SNORTPIDFILE"
+fi
+
+if [ "$SNORTPCAPRULES"X = "X" ]; then
+   SNORTPCAPRULES=""
+else
+   SNORTPCAPRULES="-b $SNORTPCAPRULES"
+fi
+
+if [ "$SNORTSTARTUPSCRIPT"X = "X" ]; then
+   SNORTSTARTUPSCRIPT=""
+else
+   SNORTSTARTUPSCRIPT="-f $SNORTSTARTUPSCRIPT"
+fi
+
+if [ "$NPSNORTDREFRESH"X = "X" ]; then
+   NPSNORTDREFRESH=""
+else
+   NPSNORTDREFRESH="-t $NPSNORTDREFRESH"
+fi
+
+if [ "$SNORTIGNOREQUAR"X = "1X" ]; then
+   SNORTIGNOREQUAR="-q"
+else
+   SNORTIGNOREQUAR=""
+fi
+
+case "$1" in
+  start)
+        echo -n "Starting npsnortd: "
+        daemon /usr/bin/npsnortd.pl -s $NPAPISERVER -S $NPAPISECRET $SNORTLOGFILE $SNORTRULESFILE $NPSNORTDPORT $SNORTPIDFILE $SNORTSTARTUPSCRIPT $SNORTIGNOREQUAR $NPSNORTDREFRESH $SNORTPCAPRULES
+        echo
+        ;;
+  stop)
+        echo -n "Stopping npsnortd: "
+        killproc npsnortd.pl
+        echo 
+        ;;
+  *)
+        echo "Usage: $0 {start|stop}"
+        exit 2
+esac
+
+exit 0
