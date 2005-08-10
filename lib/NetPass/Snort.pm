@@ -28,7 +28,7 @@ use FileHandle;
 use File::Copy "move";
 
 use vars qw($VERSION);
-$VERSION = '0.01';
+$VERSION = '2.00';
 
 my $DEFAULTSNORTRULES   = "/opt/snort/etc/snort.rules";
 my $DEFAULTSNORTBPF     = "/opt/snort/etc/pcaprules.txt";
