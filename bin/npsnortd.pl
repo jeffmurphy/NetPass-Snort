@@ -70,8 +70,9 @@ use vars qw($remote_ip %opts);
 my $DEFAULTPORT		= 20008;
 my $DEFAULTSNORTLOG	= "/opt/snort/logs/snort.log";
 my $TIMEOUT		= 300;
+my $DEFAULTSNORTPID     = "/var/run/snort_dag0.pid";
 
-getopts('s:S:p:P:r:l:f:t:qDh?', \%opts);
+getopts('s:S:p:P:r:l:f:t:b:qDh?', \%opts);
 pod2usage(2) if exists $opts{'h'}  || exists $opts{'?'};
 pod2usage(2) if !exists $opts{'s'} || !exists $opts{'S'};
 
@@ -98,7 +99,21 @@ $tid->detach;
 
 # process snort logs from here on in
 my $logfile = (exists $opts{'l'}) ? $opts{'l'} : $DEFAULTSNORTLOG;
-die "Unable to open $logfile" unless -e $logfile;
+
+if (!-e $logfile) {
+	# if logfile doesnt exist touch it
+	my $fh = new FileHandle("> $logfile");
+	$fh->close();
+
+	my $pidfile = (exists $opts{'p'}) ? $opts{'p'} : $DEFAULTSNORTPID;
+	if (-e $pidfile) {
+		my $fh = new FileHandle($pidfile);
+		my $pid = $fh->getline;
+		$fh->close;
+		chomp $pid;
+		kill(0, $pid) if $pid =~ /^\d+$/;
+	}
+}
 
 my $fh = new File::Tail (
 				name        => $logfile,
