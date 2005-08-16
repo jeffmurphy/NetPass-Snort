@@ -3,6 +3,7 @@
 # npsnortd         Start/Stop npsnortd.
 #
 # chkconfig: 2345 40 60
+# description: npsnort control daemon
 #
 # Source function library.
 . /etc/rc.d/init.d/functions
