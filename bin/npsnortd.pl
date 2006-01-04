@@ -15,6 +15,7 @@
      -p pidfile		  snort pid file
      -f cmd		  command used to start/stop snort
      -t refreshrate	  amount of time to wait before refreshing the list of networks we are watching
+     -T test script	  script used to test whether changes to the snort config are valid
      -b rules	  	  file containing the pcap rules to be sent to snort on startup
      -q			  include pcap filters in snort for filtering quarantine traffic
      -h                   this message
@@ -72,7 +73,7 @@ my $DEFAULTSNORTLOG	= "/opt/snort/logs/snort.log";
 my $TIMEOUT		= 300;
 my $DEFAULTSNORTPID     = "/var/run/snort_dag0.pid";
 
-getopts('s:S:p:P:r:l:f:t:b:qDh?', \%opts);
+getopts('s:S:p:P:r:l:f:t:T:b:qDh?', \%opts);
 pod2usage(2) if exists $opts{'h'}  || exists $opts{'?'};
 pod2usage(2) if !exists $opts{'s'} || !exists $opts{'S'};
 

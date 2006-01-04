@@ -34,6 +34,7 @@ my $DEFAULTSNORTRULES   = "/opt/snort/etc/snort.rules";
 my $DEFAULTSNORTBPF     = "/opt/snort/etc/pcaprules.txt";
 my $DEFAULTSNORTPID	= "/var/run/snort_dag0.pid";
 my $DEFAULTSNORTCMD     = "/etc/init.d/snortd";
+my $DEFAULTSNORTTESTSCRIPT = "/opt/snort/bin/snort -q -c/opt/snort/etc/snort.conf -T";
 
 # make sure this matches DEFAULTPORT in npsnortd.pl
 my $DEFAULTPORT         = 20008;
@@ -68,7 +69,8 @@ my $update_pcap_rules_file = sub {
         my $rulesfile = (exists $opts{'b'}) ? $opts{'b'} : $DEFAULTSNORTBPF;
 
         # create a backup copy of the rules file
-        move($rulesfile, $rulesfile.'.bkp') if (-e $rulesfile);
+	my $backupfile = $rulesfile.'.bkp';
+        move($rulesfile, $backupfile) if (-e $rulesfile);
 
         $fh->open("> $rulesfile");
         print $fh $pcaprules."\n";
@@ -152,7 +154,8 @@ sub startSnort {
         my $rulesfile = (exists $opts{'r'}) ? $opts{'r'} : $DEFAULTSNORTRULES;
 
         # create a backup copy of the rules file
-        move($rulesfile, $rulesfile.'.bkp') if (-e $rulesfile);
+	my $backupfile = $rulesfile.'.bkp';
+        move($rulesfile, $backupfile) if (-e $rulesfile);
 
         $fh->open("> $rulesfile");
         foreach my $l (@$aref) {
@@ -161,6 +164,16 @@ sub startSnort {
                 print $fh $l."\n";
         }
         $fh->close;
+
+	# test the rules file
+	my $testcmd = (exists $opts{'T'}) ? $opts{'T'} : $DEFAULTSNORTTESTSCRIPT;
+	my $testoutput = qx($testcmd 2>&1);
+	if( $testoutput =~ /Fatal Error/gm) {
+		# we came across a Fatal Error!
+		# restore the backup copy of the rules file
+		move($backupfile, $rulesfile) if (-e $backupfile);
+		return undef;
+	}
 
 	$self->$update_pcap_rules_file($md5, $soap);
 
@@ -231,7 +244,8 @@ sub restartSnort {
 	my $rulesfile = (exists $opts{'r'}) ? $opts{'r'} : $DEFAULTSNORTRULES;
 
 	# create a backup copy of the rules file
-	move($rulesfile, $rulesfile.'.bkp') if (-e $rulesfile);
+	my $backupfile = $rulesfile.'.bkp';
+	move($rulesfile, $backupfile) if (-e $rulesfile);
 
 	$fh->open("> $rulesfile");
         foreach my $l (@$aref) {
@@ -240,6 +254,16 @@ sub restartSnort {
                 print $fh $l."\n";
         }
 	$fh->close;
+
+	# test the rules file
+	my $testcmd = (exists $opts{'T'}) ? $opts{'T'} : $DEFAULTSNORTTESTSCRIPT;
+	my $testoutput = qx($testcmd 2>&1);
+	if( $testoutput =~ /Fatal Error/gm) {
+		# we came across a Fatal Error!
+		# restore the backup copy of the rules file
+		move($backupfile, $rulesfile) if (-e $backupfile);
+		return undef;
+	}
 
 	$self->$update_pcap_rules_file($md5, $soap);
 		
