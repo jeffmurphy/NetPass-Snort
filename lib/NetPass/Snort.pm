@@ -223,52 +223,13 @@ sub restartSnort {
         my %opts         = %::opts;
         my $fh           = new FileHandle;
 
-	return undef unless exists $opts{'S'};
-        my $md5          = md5_hex(hostip.$opts{'S'});
-
-        return undef unless ($self->$check_soap_auth($key));
         return undef unless ($self->$snortRunning());
 
-        my $pid = $self->$snortGetPid();
-        return undef unless $pid;
+	$self->stopSnort($key, %opts);
+	sleep(2);
+	$self->startSnort($key, %opts);
 
-        my $soap = $self->$createSoapConnection();
-        return undef unless $soap;
-
-        my $aref = eval {$soap->getSnortRules(
-                                              -secret         => $md5,
-                                              -type           => "enabled",
-                                             )->result};
-        return undef unless defined($aref) && (ref($aref) eq 'ARRAY');
-
-	my $rulesfile = (exists $opts{'r'}) ? $opts{'r'} : $DEFAULTSNORTRULES;
-
-	# create a backup copy of the rules file
-	my $backupfile = $rulesfile.'.bkp';
-	move($rulesfile, $backupfile) if (-e $rulesfile);
-
-	$fh->open("> $rulesfile");
-        foreach my $l (@$aref) {
-                chomp $l;
-		$l =~ s/\r\n/ /g;
-                print $fh $l."\n";
-        }
-	$fh->close;
-
-	# test the rules file
-	my $testcmd = (exists $opts{'T'}) ? $opts{'T'} : $DEFAULTSNORTTESTSCRIPT;
-	my $testoutput = qx($testcmd 2>&1);
-	if( $testoutput =~ /Fatal Error/gm) {
-		# we came across a Fatal Error!
-		# restore the backup copy of the rules file
-		move($backupfile, $rulesfile) if (-e $backupfile);
-		return undef;
-	}
-
-	$self->$update_pcap_rules_file($md5, $soap);
-		
-        return 1 if (kill('HUP', $pid) > 0);
-        return undef;
+	return undef;
 }
 
 =head2 $rv = snortStatus()
